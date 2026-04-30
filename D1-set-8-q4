@@ -1,0 +1,61 @@
+// Connect to database
+const db = connect("mongodb://127.0.0.1:27017/educationDB");
+
+// 1. Design collections (students, instructors, courses)
+// Using referencing:
+// - students → store enrolled courseIds
+// - instructors → store courseIds they teach
+// - courses → store instructorId
+
+// 2. Insert sample documents
+
+// Insert instructors
+db.instructors.insertMany([
+  { instructorId: 1, name: "Dr. Smith", courseIds: [101, 102] },
+  { instructorId: 2, name: "Prof. John", courseIds: [103] }
+]);
+
+// Insert courses
+db.courses.insertMany([
+  { courseId: 101, courseName: "DBMS", instructorId: 1 },
+  { courseId: 102, courseName: "Operating Systems", instructorId: 1 },
+  { courseId: 103, courseName: "Data Structures", instructorId: 2 }
+]);
+
+// Insert students
+db.students.insertMany([
+  { studentId: 1, name: "Alice", courseIds: [101, 102] },
+  { studentId: 2, name: "Bob", courseIds: [103] }
+]);
+
+// 3. Retrieve all courses for a specific student (studentId = 1)
+print("Courses for Student 1:");
+
+let student = db.students.findOne({ studentId: 1 });
+
+if (student) {
+  db.courses.find({ courseId: { $in: student.courseIds } })
+    .forEach(doc => printjson(doc));
+}
+
+// 4. Add a new course enrollment for a student (add courseId 103 to studentId 1)
+db.students.updateOne(
+  { studentId: 1 },
+  { $push: { courseIds: 103 } }
+);
+
+print("\nAfter Adding New Course Enrollment:");
+db.students.find({ studentId: 1 })
+  .forEach(doc => printjson(doc));
+
+// 5. Justification: Embedding vs Referencing
+print("\nJustification:");
+print("Referencing is used because:");
+print("- Many-to-many relationship (students ↔ courses)");
+print("- Data duplication is avoided");
+print("- Easy to update courses/instructors separately");
+print("- Better scalability for large systems");
+
+print("\nEmbedding could be used if:");
+print("- Data is small and accessed together frequently");
+print("- No need for complex relationships");
