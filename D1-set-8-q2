@@ -1,0 +1,67 @@
+// Connect to database (Mongo Shell)
+const db = connect("mongodb://127.0.0.1:27017/fitnessDB");
+
+// 1. Create workouts collection and insert multiple records
+db.workouts.insertMany([
+  {
+    userId: 1,
+    workoutType: "Cardio",
+    duration: 30,
+    caloriesBurned: 250,
+    date: "2026-04-25"
+  },
+  {
+    userId: 2,
+    workoutType: "Strength",
+    duration: 45,
+    caloriesBurned: 400,
+    date: "2026-04-26"
+  },
+  {
+    userId: 3,
+    workoutType: "Cardio",
+    duration: 60,
+    caloriesBurned: 500,
+    date: "2026-04-27"
+  },
+  {
+    userId: 4,
+    workoutType: "Yoga",
+    duration: 40,
+    caloriesBurned: 200,
+    date: "2026-04-28"
+  },
+  {
+    userId: 5,
+    workoutType: "Cardio",
+    duration: 20,
+    caloriesBurned: 180,
+    date: "2026-04-29"
+  }
+]);
+
+// 2. Retrieve workouts for a specific type (Cardio)
+print("Cardio Workouts:");
+db.workouts.find({ workoutType: "Cardio" })
+  .forEach(doc => printjson(doc));
+
+// 3. Find workouts with duration greater than a given value (e.g., > 30 mins)
+print("\nWorkouts with duration > 30 minutes:");
+db.workouts.find({ duration: { $gt: 30 } })
+  .forEach(doc => printjson(doc));
+
+// 4. Sort workouts by calories burned in descending order
+print("\nWorkouts sorted by calories burned (descending):");
+db.workouts.find()
+  .sort({ caloriesBurned: -1 })
+  .forEach(doc => printjson(doc));
+
+// 5. Update calories burned for multiple records (e.g., increase by 50 for Cardio)
+db.workouts.updateMany(
+  { workoutType: "Cardio" },
+  { $inc: { caloriesBurned: 50 } }
+);
+
+print("\nAfter Updating Calories Burned:");
+db.workouts.find()
+  .forEach(doc => printjson(doc));
