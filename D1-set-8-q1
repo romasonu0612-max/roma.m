@@ -1,0 +1,78 @@
+// Connect to MongoDB (only needed in Node.js, not in Mongo shell)
+// const { MongoClient } = require("mongodb");
+// const client = new MongoClient("mongodb://127.0.0.1:27017");
+
+async function run() {
+  // await client.connect();
+  // const db = client.db("warehouseDB");
+
+  // In Mongo Shell, use directly:
+  const db = connect("mongodb://127.0.0.1:27017/warehouseDB");
+
+  // 1. Create collection and insert one item
+  db.inventory.insertOne({
+    itemName: "Laptop",
+    category: "Electronics",
+    quantity: 10,
+    storageLocation: "A1",
+    supplierName: "Dell"
+  });
+
+  // 2. Insert multiple items using insertMany()
+  db.inventory.insertMany([
+    {
+      itemName: "Mouse",
+      category: "Electronics",
+      quantity: 50,
+      storageLocation: "A2",
+      supplierName: "Logitech"
+    },
+    {
+      itemName: "Keyboard",
+      category: "Electronics",
+      quantity: 30,
+      storageLocation: "A3",
+      supplierName: "HP"
+    },
+    {
+      itemName: "Chair",
+      category: "Furniture",
+      quantity: 20,
+      storageLocation: "B1",
+      supplierName: "IKEA"
+    },
+    {
+      itemName: "Table",
+      category: "Furniture",
+      quantity: 15,
+      storageLocation: "B2",
+      supplierName: "Urban Ladder"
+    },
+    {
+      itemName: "Notebook",
+      category: "Stationery",
+      quantity: 100,
+      storageLocation: "C1",
+      supplierName: "Classmate"
+    }
+  ]);
+
+  // 3. Retrieve all inventory records
+  print("All Inventory Records:");
+  db.inventory.find().forEach(doc => printjson(doc));
+
+  // 4. Display only itemName and quantity using projection
+  print("\nItem Name and Quantity:");
+  db.inventory.find({}, { itemName: 1, quantity: 1, _id: 0 })
+    .forEach(doc => printjson(doc));
+
+  // 5. Delete an item based on itemName
+  db.inventory.deleteOne({ itemName: "Chair" });
+
+  print("\nAfter Deletion:");
+  db.inventory.find().forEach(doc => printjson(doc));
+
+  // await client.close();
+}
+
+run();
