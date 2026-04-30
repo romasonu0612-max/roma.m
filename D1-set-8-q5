@@ -1,0 +1,73 @@
+// Connect to database
+const db = connect("mongodb://127.0.0.1:27017/fraudDB");
+
+// 1. Create transactions collection and insert multiple records
+db.transactions.insertMany([
+  {
+    transactionId: 1001,
+    userId: 1,
+    amount: 5000,
+    location: "Bangalore",
+    deviceType: "Mobile",
+    timestamp: new Date("2026-04-25T10:00:00Z")
+  },
+  {
+    transactionId: 1002,
+    userId: 2,
+    amount: 15000,
+    location: "Mumbai",
+    deviceType: "Laptop",
+    timestamp: new Date("2026-04-25T11:00:00Z")
+  },
+  {
+    transactionId: 1003,
+    userId: 1,
+    amount: 25000,
+    location: "Delhi",
+    deviceType: "Tablet",
+    timestamp: new Date("2026-04-26T09:30:00Z")
+  },
+  {
+    transactionId: 1004,
+    userId: 3,
+    amount: 8000,
+    location: "Chennai",
+    deviceType: "Mobile",
+    timestamp: new Date("2026-04-26T12:15:00Z")
+  },
+  {
+    transactionId: 1005,
+    userId: 2,
+    amount: 30000,
+    location: "Hyderabad",
+    deviceType: "Desktop",
+    timestamp: new Date("2026-04-27T14:45:00Z")
+  }
+]);
+
+// 2. Retrieve transactions for a specific user (userId = 1)
+print("Transactions for User 1:");
+db.transactions.find({ userId: 1 })
+  .forEach(doc => printjson(doc));
+
+// 3. Filter transactions with amount greater than a threshold (e.g., > 10000)
+print("\nTransactions with amount > 10000:");
+db.transactions.find({ amount: { $gt: 10000 } })
+  .forEach(doc => printjson(doc));
+
+// 4. Create indexes on userId and amount
+db.transactions.createIndex({ userId: 1 });   // Ascending index
+db.transactions.createIndex({ amount: 1 });   // Ascending index
+
+print("\nIndexes created on userId and amount");
+
+// 5. Use explain() to analyze query performance
+print("\nExplain Plan for userId query:");
+printjson(
+  db.transactions.find({ userId: 1 }).explain("executionStats")
+);
+
+print("\nExplain Plan for amount query:");
+printjson(
+  db.transactions.find({ amount: { $gt: 10000 } }).explain("executionStats")
+);
