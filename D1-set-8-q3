@@ -1,0 +1,66 @@
+// Connect to database
+const db = connect("mongodb://127.0.0.1:27017/supportDB");
+
+// 1. Create tickets collection and insert documents with messages array
+db.tickets.insertMany([
+  {
+    ticketId: 101,
+    userId: 1,
+    issueType: "Login Issue",
+    status: "open",
+    messages: ["User unable to login", "Reset password suggested"]
+  },
+  {
+    ticketId: 102,
+    userId: 2,
+    issueType: "Payment Failure",
+    status: "open",
+    messages: ["Payment failed during checkout"]
+  },
+  {
+    ticketId: 103,
+    userId: 1,
+    issueType: "App Crash",
+    status: "resolved",
+    messages: ["App crashes on launch", "Bug identified and fixed"]
+  },
+  {
+    ticketId: 104,
+    userId: 3,
+    issueType: "Slow Performance",
+    status: "closed",
+    messages: ["App is slow", "Cache cleared"]
+  }
+]);
+
+// 2. Retrieve tickets raised by a specific user (e.g., userId = 1)
+print("Tickets by User 1:");
+db.tickets.find({ userId: 1 })
+  .forEach(doc => printjson(doc));
+
+// 3. Add a new message to a ticket using $push (ticketId = 101)
+db.tickets.updateOne(
+  { ticketId: 101 },
+  { $push: { messages: "User confirmed issue still persists" } }
+);
+
+print("\nAfter Adding Message:");
+db.tickets.find({ ticketId: 101 })
+  .forEach(doc => printjson(doc));
+
+// 4. Update ticket status (open → resolved)
+db.tickets.updateMany(
+  { status: "open" },
+  { $set: { status: "resolved" } }
+);
+
+print("\nAfter Updating Status:");
+db.tickets.find()
+  .forEach(doc => printjson(doc));
+
+// 5. Delete tickets with status "closed"
+db.tickets.deleteMany({ status: "closed" });
+
+print("\nAfter Deleting Closed Tickets:");
+db.tickets.find()
+  .forEach(doc => printjson(doc));
